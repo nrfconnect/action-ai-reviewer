@@ -2,28 +2,29 @@ import { OpenAI, AzureOpenAI } from 'openai';
 
 export class Chat {
   private openai: OpenAI | AzureOpenAI;
-  private isAzure: boolean;
+  // private isAzure: boolean;
 
   constructor(apikey: string) {
-    this.isAzure = Boolean(
-        process.env.AZURE_API_VERSION && process.env.AZURE_DEPLOYMENT,
-    );
+    // this.isAzure = Boolean(
+    //     process.env.AZURE_API_VERSION && process.env.AZURE_DEPLOYMENT,
+    // );
 
-    if (this.isAzure) {
+    // if (this.isAzure) {
       // Azure OpenAI configuration
       this.openai = new AzureOpenAI({
         apiKey: apikey,
-        endpoint: process.env.OPENAI_API_ENDPOINT || '',
-        apiVersion: process.env.AZURE_API_VERSION || '',
-        deployment: process.env.AZURE_DEPLOYMENT || '',
+        endpoint: process.env.OPENAI_API_ENDPOINT || 'https://aitfaihubswede8699771973.openai.azure.com',
+        apiVersion: process.env.AZURE_API_VERSION || '2024-08-01-preview',
+        deployment: process.env.AZURE_DEPLOYMENT || 'gpt-4o-mini',
       });
-    } else {
-      // Standard OpenAI configuration
-      this.openai = new OpenAI({
-        apiKey: apikey,
-        baseURL: process.env.OPENAI_API_ENDPOINT || 'https://api.openai.com/v1',
-      });
-    }
+    // } 
+    // else {
+    //   // Standard OpenAI configuration
+    //   this.openai = new OpenAI({
+    //     apiKey: apikey,
+    //     baseURL: process.env.OPENAI_API_ENDPOINT || '',
+    //   });
+    // }
   }
 
   private generatePrompt = (patch: string) => {
@@ -31,9 +32,13 @@ export class Chat {
         ? `Answer me in ${process.env.LANGUAGE},`
         : '';
 
-    const prompt =
-        process.env.PROMPT ||
-        'Below is a code patch, please help me do a brief code review on it. Any bug risks and/or improvement suggestions are welcome:';
+    const prompt = process.env.PROMPT || `Review the pull request diff. If you find any issues, list them as bullet points with one sentence each.
+    Do not add any extra commentary, preamble, or closing remarks.
+    If there are no issues, output nothing.
+    If possible use github suggestion using syntax
+    \`\`\`suggestion
+    this is my new suggestion
+    \`\`\``;
 
     return `${prompt}, ${answerLanguage}:
   ${patch}
@@ -55,13 +60,20 @@ export class Chat {
           content: prompt,
         },
       ],
-      model: process.env.MODEL || 'gpt-4o-mini',
+      model: process.env.MODEL || 'gpt-4o-mini',  
       temperature: +(process.env.temperature || 0) || 1,
       top_p: +(process.env.top_p || 0) || 1,
       max_tokens: process.env.max_tokens ? +process.env.max_tokens : undefined,
     });
 
     console.timeEnd('code-review cost');
+
+    const tokensUsed = res.usage?.total_tokens || 0;
+    const ratePerToken = 0.60 / 1000000; // GPT4o-mini cost
+    //const ratePerToken = 0.0015 / 1000;  3.5-turbo
+    const cost = tokensUsed * ratePerToken;
+
+    console.log(`tokens used: ${tokensUsed}, estimated cost: $${cost}`);
 
     if (res.choices.length) {
       return res.choices[0].message.content;
