@@ -49,12 +49,17 @@ export const robot = (app: Probot) => {
       const repo = context.repo();
       const chat = await loadChat(context);
 
+      log.setLevel('debug');
+      console.log('Full context payload:', JSON.stringify(context.payload, null, 2));
+
       if (!chat) {
         log.info('Chat initialized failed');
         return 'no chat';
       }
 
       const pull_request = context.payload.pull_request;
+
+      console.log('Pull request payload:', JSON.stringify(pull_request, null, 2));
 
       log.debug('pull_request:', pull_request);
 
