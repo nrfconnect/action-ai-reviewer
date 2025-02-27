@@ -4,6 +4,8 @@ import { minimatch } from 'minimatch'
 import { Chat } from './chat.js';
 import log from 'loglevel';
 
+log.setLevel('debug');  //debug
+
 const OPENAI_API_KEY = 'OPENAI_API_KEY';
 const MAX_PATCH_COUNT = process.env.MAX_PATCH_LENGTH
   ? +process.env.MAX_PATCH_LENGTH
@@ -15,6 +17,7 @@ export const robot = (app: Probot) => {
     // if (process.env.OPENAI_API_KEY) {
     //   return new Chat(process.env.OPENAI_API_KEY);
     // }
+    console.log('Test log'); //debug
     log.info('Full context payload:'); //debug
     log.info(context);  //debug
     log.debug('Full context payload:'); //debug
