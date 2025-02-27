@@ -15,9 +15,11 @@ export const robot = (app: Probot) => {
     // if (process.env.OPENAI_API_KEY) {
     //   return new Chat(process.env.OPENAI_API_KEY);
     // }
-    console.log('Full context payload:', JSON.stringify(context, null, 2)); //debug
+    log.info('Full context payload:'); //debug
+    log.info(context);  //debug
     const repo = context.repo();
-    console.log('Full repo payload:', JSON.stringify(repo, null, 2)); //debug
+    log.info('Full repo payload:'); //debug
+    log.info(repo);  //debug
     
     try {
       const { data } = (await context.octokit.request(
@@ -28,7 +30,8 @@ export const robot = (app: Probot) => {
           name: OPENAI_API_KEY,
         }
       )) as any;
-      console.log('Full data payload:', JSON.stringify(data, null, 2)); //debug
+      log.info('Full data payload:'); //debug
+      log.info(data);  //debug
       if (!data?.value) {
         return null;
       }
@@ -51,18 +54,12 @@ export const robot = (app: Probot) => {
       const repo = context.repo();
       const chat = await loadChat(context);
 
-      log.setLevel('debug');
-      console.log('Full context payload:', JSON.stringify(context.payload, null, 2)); //debug
-
       if (!chat) {
         log.info('Chat initialized failed');
         return 'no chat';
       }
 
       const pull_request = context.payload.pull_request;
-
-      console.log('Pull request payload:', JSON.stringify(pull_request, null, 2)); //debug
-
       log.debug('pull_request:', pull_request);
 
       if (
