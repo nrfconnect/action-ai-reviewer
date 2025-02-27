@@ -17,6 +17,8 @@ export const robot = (app: Probot) => {
     // }
     log.info('Full context payload:'); //debug
     log.info(context);  //debug
+    log.debug('Full context payload:'); //debug
+    log.debug(context);  //debug
     const repo = context.repo();
     log.info('Full repo payload:'); //debug
     log.info(repo);  //debug
