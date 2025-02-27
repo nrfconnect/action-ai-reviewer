@@ -14,9 +14,10 @@ export const robot = (app: Probot) => {
     if (process.env.OPENAI_API_KEY) {
       return new Chat(process.env.OPENAI_API_KEY);
     }
-
+    console.log('Full context payload:', JSON.stringify(context, null, 2));
     const repo = context.repo();
-
+    console.log('Full repo payload:', JSON.stringify(repo, null, 2));
+    
     try {
       const { data } = (await context.octokit.request(
         'GET /repos/{owner}/{repo}/actions/variables/{name}',
@@ -26,7 +27,7 @@ export const robot = (app: Probot) => {
           name: OPENAI_API_KEY,
         }
       )) as any;
-
+      console.log('Full data payload:', JSON.stringify(data, null, 2));
       if (!data?.value) {
         return null;
       }
